@@ -6,13 +6,16 @@
 
 import numpy as np
 import sys
+import matplotlib.pyplot as plt
 
 #### Constants ####
 
-NUM_DATA_POINTS = 1e6
+NUM_DATA_POINTS = int(1e6)
+FLOAT_SIG_FIGS = 2
 
 INITIAL_CENTRE = 0.0
 INITIAL_SIGMA = 1.0
+INITIAL_VAR = INITIAL_SIGMA**2
 
 CHANNEL_CENTRE = 0.0
 
@@ -25,23 +28,50 @@ if (len(sys.argv) < 3):
     raise Exception("Two command line parameters are needed: noise and BER, both of which are float values.\nUsage: python band_with_noise.py [noise] [BER].")
 
 channel_sigma = float(sys.argv[1])
-ber = float(sys.argv[2])
-
 channel_var = channel_sigma**2
 
-print(channel_sigma)
-print(ber)
+# Bit error rate (BER)
+acceptable_ber = float(sys.argv[2])
 
 #### Generate Data ####
 
-# First, set up a Gaussian distribution to generate source data. Gaussian is normalised.
+# Generate raw data from Gaussian distribution centred on zero with variance 1. Shift as appropriate (defaults to no shift).
 # Gaussian given by np.random.gaussian is a probability density function and is hence scaled by 1 / \sqrt{2\pi\sigma^2}.
 # Hence, we 'unscale' to reach a Gaussian distribution of unity peak instead of unity integral.
-scaling_factor = np.sqrt(2 * np.pi * channel_var)
+data = np.sqrt(2 * np.pi * INITIAL_VAR) * INITIAL_SIGMA * np.random.randn((NUM_DATA_POINTS)) + INITIAL_CENTRE
 
-# Generate unnormalised data
+# Next, assign values to data dependent on whether it is left or right of the centre of the Gaussian (1 bit per symbol).
+bits = list(map(lambda d : int(d >= INITIAL_CENTRE), data))
 
+#### Add Gaussian noise to data ####
+noise = np.sqrt(2 * np.pi * channel_var) * channel_sigma * np.random.randn((NUM_DATA_POINTS)) + CHANNEL_CENTRE
 
-# Apply appropriate scaling
+data = np.add(data, noise)
 
+#### Count Bit Error Rate ####
 
+def bit_error_count(data, bits):
+    count = 0
+    for d, b in list(zip(data, bits)):
+        count += (b != (d >= INITIAL_CENTRE))
+    return count
+
+bec = bit_error_count(data, bits)
+
+print("BER = {:.5f}%.".format(100.0 * (bec / NUM_DATA_POINTS)))
+
+# np.savetxt("data/data.txt", list(zip(data, bits)), fmt = "%.{}f".format(FLOAT_SIG_FIGS))
+
+# fig, ax = plt.subplots(2)
+
+# ax[0].hist(data, density = True, bins = 60)
+# ax[0].set_xlim(-10, 10)
+# ax[0].set_title("Data, sigma = {}.".format(INITIAL_SIGMA))
+
+# ax[1].hist(noise, density = True, bins = 60)
+# ax[1].set_xlim(-10, 10)
+# ax[1].set_title("Noise, sigma = {}.".format(channel_sigma))
+
+# plt.tight_layout()
+
+# plt.show()
