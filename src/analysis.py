@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from simple_case_integration import evaluate_gamma
+from simple_case_integration import evaluate_phi
 
 ######################################################
 
@@ -18,11 +19,11 @@ from simple_case_integration import evaluate_gamma
 
 # Adjustable parameters
 BETA_MIN = 0.0
-BETA_MAX = 0.7
+BETA_MAX = 1.5
 NUM_BETAS = 50
 
 X_var = 1.0
-noise_var = 0.1 # Only adjust band width for now
+noise_var = 0.3 # Only adjust band width for now
 betas = np.linspace(BETA_MIN, BETA_MAX, NUM_BETAS)
 
 #################
@@ -34,21 +35,28 @@ SNR = X_var / noise_var
 
 #################
 
-BERs = np.empty(len(betas))
+QBERs = np.empty(len(betas))
+phis = np.empty(len(betas))
 
 for i, beta in enumerate(betas):
     # Evaluate gamma then convert it to a percentage by multiplying by 100
-    BERs[i] = evaluate_gamma(sigma_X, sigma_nu, mu_X, beta)[0] * 100
+    QBERs[i] = evaluate_gamma(sigma_X, sigma_nu, mu_X, beta)[0] * 100.0
+    
+    # Do the same with phi (= 1 - throughput)
+    phis[i] = evaluate_phi(sigma_X, sigma_nu, mu_X, beta)[0] * 100.0
 
 #################
 
 fig, ax = plt.subplots(1, figsize = (7, 5))
 
-ax.plot(betas, BERs, "k-")
+ax.plot(betas, QBERs, "k-", label = "QBER")
+ax.plot(betas, phis, "k--", label = "Phi = 1 - TPut")
 
 ax.set_xlabel("$\\beta$")
-ax.set_ylabel("BER %")
-ax.set_title("BER vs. $\\beta$ for $\\sigma_X^2 = {:.2f}$ and $\sigma_\\nu^2 = {:.2f}$.".format(X_var, noise_var))
+ax.set_ylabel("QBER % / Phi %")
+ax.set_title("QBER and Phi vs. $\\beta$ for $\\sigma_X^2 = {:.2f}$ and $\sigma_\\nu^2 = {:.2f}$.".format(X_var, noise_var))
+
+ax.legend()
 
 plt.tight_layout()
 

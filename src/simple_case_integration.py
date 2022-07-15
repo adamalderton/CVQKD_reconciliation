@@ -1,8 +1,12 @@
+# TODO: Comment documentation!
+# Define what gamma is
+# Phi: Throughput integral. Integral of pdf inside guard band, such that throughput is 1 - phi.
+
 from typing import Tuple
 import numpy as np
 from scipy.integrate import dblquad
 
-def gamma_integral(Y, X, sigma_X, sigma_nu, mu_X):
+def _gamma_integral(Y, X, sigma_X, sigma_nu, mu_X):
     
     var_X = sigma_X**2
     var_nu = sigma_nu**2
@@ -21,7 +25,7 @@ def gamma_integral(Y, X, sigma_X, sigma_nu, mu_X):
 def evaluate_gamma(sigma_X: float, sigma_nu: float, mu_X: float, beta: float) -> Tuple[float, float]:
     
     return dblquad(
-        gamma_integral,                         # Function to integrate
+        _gamma_integral,                        # Function to integrate
         -np.inf,                                # Lower bound of X
         mu_X - beta,                            # Upper bound of X
         mu_X + beta,                            # Lower bound of Y
@@ -29,6 +33,17 @@ def evaluate_gamma(sigma_X: float, sigma_nu: float, mu_X: float, beta: float) ->
         args = (sigma_X, sigma_nu, mu_X)        # Extra arguments
     )
 
+def evaluate_phi(sigma_X: float, sigma_nu: float, mu_X: float, beta: float) -> Tuple[float, float]:
+    
+    # Is essentially the gamma integral but with different limits, as in the corresponding notes.
+    return dblquad(
+        _gamma_integral,                        # Function to integrate
+        -np.inf,                                # Lower bound of X
+        mu_X - beta,                            # Upper bound of X
+        mu_X - beta,                            # Lower bound of Y
+        mu_X + beta,                            # Upper bound of Y
+        args = (sigma_X, sigma_nu, mu_X)        # Extra arguments
+    )
 
 if __name__ == "__main__":
     
@@ -46,8 +61,13 @@ if __name__ == "__main__":
     
     
     print("\n\t# X_var = {:.3f}.\n\t# noise_var = {:.3f}.\n\t# guard_band_width = {:.3f}.".format(X_var, noise_var, band_width))
-    print("\n\t# Evaluating BER ...")
+    print("\n\t# Evaluating ...")
     
     gamma, gamma_err = evaluate_gamma(np.sqrt(X_var), np.sqrt(noise_var), mu_X, band_width / 2.0)
     
-    print("\n\tBER = {:.4f}% with error = {:.2e}%.".format(gamma * 100, gamma_err * 100))
+    phi, phi_err = evaluate_phi(np.sqrt(X_var), np.sqrt(noise_var), mu_X, band_width / 2.0)
+    
+    throughput = 1.0 - phi
+    
+    print("\n\tQBER = {:.4f}% with numerical integration error = {:.2e}%.".format(gamma * 100.0, gamma_err * 100.0))
+    print("\tTPut = {:.4f}% with numerical integration error = {:.2e}%.".format(throughput * 100.0, phi_err * 100.0))
