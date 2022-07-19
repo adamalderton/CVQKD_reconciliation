@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from simple_case_integration import evaluate_gamma
-from simple_case_integration import evaluate_phi
+from simple_case_integration import evaluate_tau
 
 ######################################################
 
@@ -36,21 +36,21 @@ SNR = X_var / noise_var
 #################
 
 QBERs = np.empty(len(betas))
-phis = np.empty(len(betas))
+taus = np.empty(len(betas))
 
 for i, beta in enumerate(betas):
     # Evaluate gamma then convert it to a percentage by multiplying by 100
     QBERs[i] = evaluate_gamma(sigma_X, sigma_nu, mu_X, beta)[0] * 100.0
     
-    # Do the same with phi (= 1 - throughput)
-    phis[i] = evaluate_phi(sigma_X, sigma_nu, mu_X, beta)[0] * 100.0
+    # Do the same with tau (= 1 - throughput)
+    taus[i] = evaluate_tau(sigma_X, sigma_nu, mu_X, beta)[0] * 100.0
 
 #################
 
 fig, ax = plt.subplots(1, figsize = (7, 5))
 
 ax.plot(betas, QBERs, "k-", label = "QBER")
-ax.plot(betas, phis, "k--", label = "Phi = 1 - TPut")
+ax.plot(betas, taus, "k--", label = "tau = 1 - TPut")
 
 ax.set_xlabel("$\\beta$")
 ax.set_ylabel("QBER % / Phi %")

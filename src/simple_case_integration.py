@@ -1,6 +1,6 @@
 # TODO: Comment documentation!
 # Define what gamma is
-# Phi: Throughput integral. Integral of pdf inside guard band, such that throughput is 1 - phi.
+# Tau: 1 - throughput integral. Integral of pdf inside guard band, such that throughput is 1 - tau.
 
 from typing import Tuple
 import numpy as np
@@ -8,8 +8,8 @@ from scipy.integrate import dblquad
 
 def _gamma_integral(Y, X, sigma_X, sigma_nu, mu_X):
     
-    var_X = sigma_X**2
-    var_nu = sigma_nu**2
+    var_X = sigma_X*sigma_X
+    var_nu = sigma_nu*sigma_nu
     
     XmmuX = X - mu_X
     YmX = Y - X
@@ -22,8 +22,9 @@ def _gamma_integral(Y, X, sigma_X, sigma_nu, mu_X):
             )
         )
 
-def evaluate_gamma(sigma_X: float, sigma_nu: float, mu_X: float, beta: float) -> Tuple[float, float]:
-    
+
+# Numerically evaluate the gamme integral as per the OneNote page. 
+def evaluate_gamma(sigma_X, sigma_nu, mu_X, beta) -> Tuple[float, float]:
     return dblquad(
         _gamma_integral,                        # Function to integrate
         -np.inf,                                # Lower bound of X
@@ -33,17 +34,18 @@ def evaluate_gamma(sigma_X: float, sigma_nu: float, mu_X: float, beta: float) ->
         args = (sigma_X, sigma_nu, mu_X)        # Extra arguments
     )
 
-def evaluate_phi(sigma_X: float, sigma_nu: float, mu_X: float, beta: float) -> Tuple[float, float]:
-    
-    # Is essentially the gamma integral but with different limits, as in the corresponding notes.
+# Essentially the same at the gamme integral, except for the fact that different integral limits are given.
+# See the OneNote page for more information.
+def evaluate_tau(sigma_X, sigma_nu, mu_X, beta) -> Tuple[float, float]:
     return dblquad(
-        _gamma_integral,                        # Function to integrate
-        -np.inf,                                # Lower bound of X
-        mu_X - beta,                            # Upper bound of X
-        mu_X - beta,                            # Lower bound of Y
-        mu_X + beta,                            # Upper bound of Y
-        args = (sigma_X, sigma_nu, mu_X)        # Extra arguments
+        _gamma_integral,
+        -np.inf,
+        mu_X - beta,
+        mu_X - beta,
+        mu_X + beta,
+        args = (sigma_X, sigma_nu, mu_X)
     )
+
 
 if __name__ == "__main__":
     
@@ -65,7 +67,7 @@ if __name__ == "__main__":
     
     gamma, gamma_err = evaluate_gamma(np.sqrt(X_var), np.sqrt(noise_var), mu_X, band_width / 2.0)
     
-    phi, phi_err = evaluate_phi(np.sqrt(X_var), np.sqrt(noise_var), mu_X, band_width / 2.0)
+    phi, phi_err = evaluate_tau(np.sqrt(X_var), np.sqrt(noise_var), mu_X, band_width / 2.0)
     
     throughput = 1.0 - phi
     
