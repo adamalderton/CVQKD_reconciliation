@@ -5,17 +5,6 @@
 # Gamma: Integral corresponding to bits that, subject to noise, have been measured to reside at the other side of the guard band.
 # Tau: 1 - throughput integral. Integral of pdf inside guard band, such that throughput is 1 - tau.
 
-######################################################
-
-# CAVEAT: This only analyses 'half' of the X gaussian, hence gamma is not actually a probability
-# as only 0.5 of X probability is considered. However, considering that this system is symmetric,
-# the extension of the analysis to the right hand side of the Gaussian which would mean that gamma
-# would double as there is a 'gamma' either side of the guard band. Therefore, the BER is actually the
-# BER for the entire symmetrical system as the factor of half for total gamma and fraction of 
-# distribution analysed cancel: (0.5 dist) / (0.5 gamma) = dist / gamma.
-
-######################################################
-
 from typing import Tuple
 import numpy as np
 from scipy.integrate import dblquad
