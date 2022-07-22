@@ -9,7 +9,8 @@ from typing import Tuple
 import numpy as np
 from scipy.integrate import dblquad
 
-def _gamma_integral(Y, X, sigma_X, sigma_eta, mu_X):
+# The function f(x, y, \mu_X, \sigma_X, \sigma_\eta) as discussed in the attached report.
+def _f(Y, X, sigma_X, sigma_eta, mu_X):
     
     var_X = sigma_X*sigma_X
     var_nu = sigma_eta*sigma_eta
@@ -26,29 +27,40 @@ def _gamma_integral(Y, X, sigma_X, sigma_eta, mu_X):
         )
 
 
-# Numerically evaluate the gamme integral as per the OneNote page. 
+# Numerically evaluate the gamma integral.
+# This is done in two sections are the integral limits of y differ either side of the guard band.
 def evaluate_gamma(sigma_X, sigma_eta, mu_X, beta) -> Tuple[float, float]:
-    return dblquad(
-        _gamma_integral,                        # Function to integrate
-        -np.inf,                                # Lower bound of X
-        mu_X,                                   # Upper bound of X
-        mu_X + beta,                            # Lower bound of Y
-        np.inf,                                 # Upper bound of Y
-        args = (sigma_X, sigma_eta, mu_X)       # Extra arguments
-    )
+    return \
+        np.add( # np add used as dblquad returns (integral, integral_error)
+            dblquad( # Evaluate 'left hand side'
+                _f,                                     # Function to integrate
+                -np.inf,                                # Lower bound of X
+                mu_X,                                   # Upper bound of X
+                mu_X + beta,                            # Lower bound of Y
+                np.inf,                                 # Upper bound of Y
+                args = (sigma_X, sigma_eta, mu_X)       # Extra arguments
+            ),
+            dblquad( # Evaluate 'right hand side'
+                _f,                                     # Function to integrate
+                mu_X,                                   # Lower bound of X
+                np.inf,                                 # Upper bound of X
+                -np.inf,                                # Lower bound of Y
+                mu_X - beta,                            # Upper bound of Y
+                args = (sigma_X, sigma_eta, mu_X)       # Extra arguments
+            )
+        )
 
-# Essentially the same at the gamme integral, except for the fact that different integral limits are given.
-# See the OneNote page for more information.
+# Numerically evaluate the tau integral.
+# Unlike gamma, this can be achieved in one double integral. See the proof in the attached report.
 def evaluate_tau(sigma_X, sigma_eta, mu_X, beta) -> Tuple[float, float]:
     return dblquad(
-        _gamma_integral,
+        _f,                                     # Function to integrate
         -np.inf,                                # Lower bound of X
-        mu_X,                                   # Upper bound of X
+        np.inf,                                 # Upper bound of X
         mu_X - beta,                            # Lower bound of Y
         mu_X + beta,                            # Upper bound of Y
         args = (sigma_X, sigma_eta, mu_X)       # Extra arguments
     )
-
 
 if __name__ == "__main__":
     
