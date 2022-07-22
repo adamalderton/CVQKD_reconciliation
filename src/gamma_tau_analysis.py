@@ -11,11 +11,11 @@ from simple_case_integration import evaluate_tau
 
 # Adjustable parameters
 BETA_MIN = 0.0
-BETA_MAX = 1.4
-NUM_BETAS = 50
+BETA_MAX = 0.5
+NUM_BETAS = 20
 NOISE_MIN = 0.01 # Don't divide by zero
-NOISE_MAX = 2.0
-NUM_NOISES = 50
+NOISE_MAX = 0.3
+NUM_NOISES = 20
 X_VAR = 1.0
 
 QBER_FILENAME = "results/two_var_simple_QBER.png"
@@ -23,7 +23,7 @@ TAU_FILENAME = "results/two_var_simple_TAU.png"
 IMG_SIZE = (7, 5)
 DPI = 300
 FONTSIZE = 16
-QBER_CONTOUR_LEVELS = (5, 10, 15)
+QBER_CONTOUR_LEVELS = (2, 4, 6)
 TAU_CONTOUR_LEVELS = (10, 20, 30)
 
 #################
