@@ -64,26 +64,19 @@ def evaluate_tau(sigma_X, sigma_eta, mu_X, beta) -> Tuple[float, float]:
 
 if __name__ == "__main__":
     
-    # Adjustable parameters
-    X_var = 1.0
-    noise_var = 0.1
-    band_width = 0.1
-    
-    ############
-    
-    SNR = X_var / noise_var
     mu_X = 0.0
+    sigma_X = 1.0
+    sigma_eta = 0.25
+    beta = 0.3
     
-    ############
-    
-    print("\n\t# X_var = {:.3f}.\n\t# noise_var = {:.3f}.\n\t# guard_band_width = {:.3f}.".format(X_var, noise_var, band_width))
+    print("\n\t# sigma_X = {:.3f}.\n\t# sigma_eta = {:.3f}.\n\t# beta = {:.3f}.".format(sigma_X, sigma_eta, beta))
     print("\n\t# Evaluating ...")
     
-    gamma, gamma_err = evaluate_gamma(np.sqrt(X_var), np.sqrt(noise_var), mu_X, band_width / 2.0)
+    gamma, gamma_err = evaluate_gamma(sigma_X, sigma_eta, mu_X, beta)
     
-    tau, tau_err = evaluate_tau(np.sqrt(X_var), np.sqrt(noise_var), mu_X, band_width / 2.0)
+    tau, tau_err = evaluate_tau(sigma_X, sigma_eta, mu_X, beta)
     
     throughput = 1.0 - tau
     
-    print("\n\tQBER = {:.4f}% with numerical integration error = {:.2e}%.".format(gamma * 100.0, gamma_err * 100.0))
-    print("\tTPut = {:.4f}% with numerical integration error = {:.2e}%.".format(throughput * 100.0, tau_err * 100.0))
+    print("\n\tGamma (QBER) = {:.4f}% with numerical integration error = {:.2e}%.".format(gamma * 100.0, gamma_err * 100.0))
+    print("\tTau (1 - t'put) = {:.4f}% with numerical integration error = {:.2e}%.".format(tau * 100.0, tau_err * 100.0))

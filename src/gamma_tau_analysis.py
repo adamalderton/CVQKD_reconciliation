@@ -1,25 +1,24 @@
 from configparser import Interpolation
 import numpy as np
 import matplotlib.pyplot as plt
-from one_var_analysis import QBER_FILENAME
 
 # Import appropriate integration functions
-from simple_case_integration import evaluate_gamma
-from simple_case_integration import evaluate_tau
+from binary_case_integration import evaluate_gamma
+from binary_case_integration import evaluate_tau
 
 ##################################################
 
 # Adjustable parameters
 BETA_MIN = 0.0
 BETA_MAX = 0.5
-NUM_BETAS = 20
+NUM_BETAS = 40
 NOISE_MIN = 0.01 # Don't divide by zero
 NOISE_MAX = 0.3
-NUM_NOISES = 20
+NUM_NOISES = 40
 X_VAR = 1.0
 
-QBER_FILENAME = "results/two_var_simple_QBER.png"
-TAU_FILENAME = "results/two_var_simple_TAU.png"
+QBER_FILENAME = "results/gamma.png"
+TAU_FILENAME = "results/tau.png"
 IMG_SIZE = (7, 5)
 DPI = 300
 FONTSIZE = 16
