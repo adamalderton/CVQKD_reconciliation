@@ -62,6 +62,7 @@ def evaluate_tau(sigma_X, sigma_eta, mu_X, beta) -> Tuple[float, float]:
         args = (sigma_X, sigma_eta, mu_X)       # Extra arguments
     )
 
+
 if __name__ == "__main__":
     
     mu_X = 0.0
